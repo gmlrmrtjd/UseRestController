@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+
+<!--    &lt;!&ndash; 해당 설정파일에서 사용하는 프로퍼티&ndash;&gt;-->
+<!--    <Properties>-->
+<!--        <property name="LOGS_PATH">D:\test_logs</property>-->
+<!--    </Properties>-->
+
+<!--    <Appenders>-->
+<!--        &lt;!&ndash; 콘솔 &ndash;&gt;-->
+<!--        <Console name="console" target="SYSTEM_OUT">-->
+<!--            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss}:%-3relative] %-5level %logger{35} - %msg%n" />-->
+<!--        </Console>-->
+
+<!--        &lt;!&ndash; 파일 &ndash;&gt;-->
+<!--        <RollingFile name ="RollingFile">-->
+<!--            <FileName>${LOGS_PATH}/log4j2.log</FileName>-->
+<!--            <FilePattern>${LOGS_PATH}/log4j2.%d{yyyy-MM-dd}.%i.log.gz</FilePattern>-->
+<!--            <PatternLayout>-->
+<!--                <Pattern>%d{yyyy-MM-dd HH:mm:ss} %5p [%c] %m%n</Pattern>-->
+<!--            </PatternLayout>-->
+<!--            <Policies>-->
+<!--                <SizeBasedTriggeringPolicy size="100MB"/>-->
+<!--                <TimeBasedTriggeringPolicy interval = "1" modulate = "true"/>-->
+<!--            </Policies>-->
+<!--        </RollingFile>-->
+<!--    </Appenders>-->
+
+<!--    <Loggers>-->
+<!--        &lt;!&ndash; Application Loggers &ndash;&gt;-->
+<!--        &lt;!&ndash; Root 보다 우선 순위가 높습니다. &ndash;&gt;-->
+<!--        <logger name="com.test.api.controller" level="INFO" additivity="false">-->
+<!--            <AppenderRef ref="console" />-->
+<!--            <AppenderRef ref="RollingFile" />-->
+<!--        </logger>-->
+
+<!--        <logger name="com.test.api.service" level="INFO" additivity="false">-->
+<!--            <AppenderRef ref="console" />-->
+<!--            <AppenderRef ref="RollingFile" />-->
+<!--        </logger>-->
+
+<!--        &lt;!&ndash; FATAL, ERROR, WARN, INFO, DEBUG, TRACE &ndash;&gt;-->
+<!--        <Root level="INFO">-->
+<!--            <AppenderRef ref="console" />-->
+<!--            <AppenderRef ref="RollingFile" />-->
+<!--        </Root>-->
+<!--    </Loggers>-->
+
+
+<Properties>
+<Property name="logFileName">daily-log</Property> //생성될 로그파일 이름
+<Property name="BASE_DIR">/root/logs</Property> // 로그파일이 생성될 경로
+//콘솔에 출력될 로그 레이아웃
+<Property name="consoleLayout">%style{%d{ISO8601}}{black} %highlight{%-5level }[%style{%t}{bright,blue}] %style{%C{1.}}{bright,yellow}: %msg%n%throwable</Property>
+<Property name="fileLayout">%d [%t] %-5level %c(%M:%L) - %m%n</Property> //생성될 로그 레이아웃
+</Properties>
+
+<Appenders>
+<Console name="console" target="SYSTEM_OUT">
+    <PatternLayout pattern="${consoleLayout}" charset="UTF-8"/>
+</Console>
+
+<RollingFile name="file" fileName="logs/${logFileName}.log" filePattern="logs/${logFileName}.%d{yyyy-MM-dd}.log">
+    <PatternLayout pattern="${fileLayout}" />
+    <LevelRangeFilter minLevel="ERROR" maxLevel="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+    <Policies>
+        <SizeBasedTriggeringPolicy size="10 MB"/>
+        <TimeBasedTriggeringPolicy modulate="true" interval="1" /><!-- 일별 로그 파일 생성-->
+    </Policies>
+    <DefaultRolloverStrategy max="25" fileIndex="min" >
+        <Delete basePath="${BASE_DIR}">
+            <IfFileName glob="*.log" />
+            <IfLastModified age="10d" />
+        </Delete>
+    </DefaultRolloverStrategy>
+</RollingFile>
+
+<RollingFile name="errorFile" fileName="logs/${logErrorFileName}.log" filePattern="logs/${logErrorFileName}.%d{yyyy-MM-dd}.log">
+    <PatternLayout pattern="${fileLayout}" />
+    <LevelRangeFilter minLevel="ERROR" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+    <Policies>
+        <SizeBasedTriggeringPolicy size="10 MB"/>
+        <TimeBasedTriggeringPolicy modulate="true" interval="1" /><!-- 일별 로그 파일 생성-->
+    </Policies>
+    <DefaultRolloverStrategy max="25" fileIndex="min" >
+        <Delete basePath="${BASE_DIR}">
+            <IfFileName glob="*.log" />
+            <IfLastModified age="10d" />
+        </Delete>
+    </DefaultRolloverStrategy>
+</RollingFile>
+</Appenders>
+
+<Loggers>
+
+<Root level="ALL">
+    <AppenderRef ref="console"/>
+</Root>
+
+<!-- 스프링 프레임워크에서 찍는건 level을 info로 설정 -->
+<logger name="com.osci.atlasagent" additivity="true" >
+    <AppenderRef ref="file"/>
+    <AppenderRef ref="errorFile"/>
+</logger>
+
+</Loggers>
+</Configuration>

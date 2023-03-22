@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Board</title>
+    <style>
+        /* Add some basic styling */
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+        }
+        th {
+            background-color: #efefef;
+        }
+    </style>
+</head>
+<body>
+<h1>Simple Board</h1>
+
+<form id="postForm">
+    <input type="hidden" id="postId" />
+    <div>
+        <label for="title">Title:</label>
+        <input type="text" id="title" required />
+    </div>
+    <div>
+        <label for="content">Content:</label>
+        <textarea id="content" required></textarea>
+    </div>
+    <button type="submit">Submit</button>
+</form>
+
+<hr />
+
+<table>
+    <thead>
+    <tr>
+        <th>Title</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody id="postList"></tbody>
+</table>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    const apiUrl = '/posts';
+    const postForm = document.getElementById('postForm');
+    const postIdInput = document.getElementById('postId');
+    const titleInput = document.getElementById('title');
+    const contentInput = document.getElementById('content');
+    const postList = document.getElementById('postList');
+
+    // Fetch all posts
+    function fetchPosts() {
+        $.ajax({
+            url: apiUrl,
+            type: 'GET',
+            success: function(posts) {
+                postList.innerHTML = '';
+                posts.forEach(post => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                    <td>${post.title}</td>
+                    <td>
+                        <button onclick="editPost(${post.id})">Edit</button>
+                        <button onclick="deletePost(${post.id})">Delete</button>
+                    </td>
+                `;
+                    postList.appendChild(tr);
+                });
+            }
+        });
+    }
+
+    // Add or update a post
+    function savePost(post) {
+        return $.ajax({
+            url: apiUrl + (post.id ? `/${post.id}` : ''),
+            type: post.id ? 'PUT' : 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(post)
+        });
+    }
+
+    // Delete a post
+    function deletePost(id) {
+        $.ajax({
+            url: apiUrl + `/${id}`,
+            type: 'DELETE',
+            success: function() {
+                fetchPosts();
+            }
+        });
+    }
+
+    // Edit a post
+    function editPost(id) {
+        $.ajax({
+            url: apiUrl + `/${id}`,
+            type: 'GET',
+            success: function(post) {
+                postIdInput.value = post.id;
+                titleInput.value = post.title;
+                contentInput.value = post.content;
+            }
+        });
+    }
+
+    // Handle form submit
+    $(postForm).on('submit', async function(e) {
+        e.preventDefault();
+
+        const post = {
+            id: postIdInput.value || null,
+            title: titleInput.value,
+            content: contentInput.value
+        };
+
+        await savePost(post);
+
+        // Reset form
+        postForm.reset();
+        postIdInput.value = '';
+
+        // Refresh the post list
+        fetchPosts();
+    });
+
+    // Initial fetch
+    fetchPosts();
+</script>
+
+</body>
+</html>
