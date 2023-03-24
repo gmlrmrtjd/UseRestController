@@ -44,8 +44,9 @@
     });
 
     // Add or update a post
-    function savePost(post) {
-        return $.ajax({
+    // ajax()는 Pormise를 반환하므로 async/await 구문과 함께 사용하는것이 깔끔
+    async function savePost(post) {
+        return await $.ajax({
             url: apiUrl + (post.id ? `/${post.id}` : ''),
             type: post.id ? 'PUT' : 'POST',
             contentType: 'application/json',

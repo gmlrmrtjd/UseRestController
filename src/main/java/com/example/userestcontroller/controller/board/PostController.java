@@ -9,16 +9,19 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 @RestController
-//@CrossOrigin(origins = "http://localhost:8181")
+@CrossOrigin(origins = "http://localhost:8181")
 public class PostController {
 
     @Setter(onMethod_ = {@Autowired})
     private PostService postService;
 
     @GetMapping("/posts")
-    public ResponseEntity<List<Post>> showPostList() {
-        List<Post> posts = postService.getAllPosts();
-        return ResponseEntity.ok(posts);
+    public List<Post> getAllPosts() {
+
+        return postService.getAllPosts();
+//    public ResponseEntity<List<Post>> showPostList() {
+//        List<Post> posts = postService.getAllPosts();
+//        return ResponseEntity.ok(posts);
     }
 
     @GetMapping("/posts/{id}")

@@ -5,11 +5,13 @@ import com.example.userestcontroller.model.board.User;
 import com.example.userestcontroller.service.board.UserService;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@Transactional
 public class UserController {
 
     @Setter(onMethod_ = {@Autowired})

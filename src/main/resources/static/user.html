@@ -64,7 +64,6 @@
     <button type="submit">Submit</button>
 </form>
 
-
 <!-- User creation form -->
 <h2>Create a User</h2>
 
@@ -144,7 +143,7 @@
     // Delete a user
     function deleteUser(id) {
         $.ajax({
-            url: apiUrl + `/users/${id}`,
+            url: apiUrl + `/${id}`,
             type: 'DELETE',
             success: function() {
                 fetchUsers();
@@ -156,7 +155,7 @@
     function editUser(id) {
         $.ajax({
             url: apiUrl + `/${id}`,
-            type: 'GET',
+            type: 'POST',
             success: function(user) {
                 userIdInput.value = user.id;
                 usernameInput.value = user.username;
@@ -179,7 +178,11 @@
             email: emailInput.value
         };
 
-        await saveUser(user);
+        if (user.id) {
+            await saveUser(user);
+        } else {
+            await addUser(user);
+        }
 
         // Reset form
         userForm.reset();
@@ -202,29 +205,21 @@
         });
     }
 
-    // Handle form submit
-    $(userForm).on('submit', async function(e) {
+    // Handle create user form submit
+    $(createUserForm).on('submit', async function(e) {
         e.preventDefault();
 
         const user = {
-            id: userIdInput.value || null,
-            username: usernameInput.value,
-            password: passwordInput.value,
-            name: nameInput.value,
-            email: emailInput.value
+            username: createUsernameInput.value,
+            password: createPasswordInput.value,
+            name: createNameInput.value,
+            email: createEmailInput.value
         };
 
-        // If the user has an id, update the existing user
-        // Otherwise, create a new user
-        if (user.id) {
-            await saveUser(user);
-        } else {
-            await addUser(user);
-        }
+        await addUser(user);
 
         // Reset form
-        userForm.reset();
-        userIdInput.value = '';
+        createUserForm.reset();
 
         // Refresh the user list
         fetchUsers();
