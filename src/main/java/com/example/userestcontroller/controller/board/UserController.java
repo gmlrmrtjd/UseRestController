@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@Transactional
+@CrossOrigin(origins = "http://localhost:8181")
 public class UserController {
 
     @Setter(onMethod_ = {@Autowired})
@@ -19,16 +19,24 @@ public class UserController {
 
     @GetMapping("/users")
     public List<User> getUsers() {
+
         return userService.getAllUsers();
+    }
+
+    @GetMapping("/users/{userId}")
+    public User getUserById(@PathVariable Long userId) {
+        return userService.getUserById(userId);
     }
 
     @GetMapping("/{userId}/posts")
     public List<Post> getPostsByUserId(@PathVariable Long userId) {
+
         return userService.getPostsByUserId(userId);
     }
 
     @PostMapping("/users")
     public User createUser(@RequestBody User user) {
+
         return userService.createUser(user);
     }
 
@@ -39,6 +47,7 @@ public class UserController {
 
     @DeleteMapping("/users/{userId}")
     public void deleteUser(@PathVariable Long userId) {
+
         userService.deleteUser(userId);
     }
 

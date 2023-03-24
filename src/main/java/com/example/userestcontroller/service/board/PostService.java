@@ -24,15 +24,13 @@ public class PostService {
         return postRepository.findById(id).orElse(null);
     }
 
-    public List<Post> getPostByUserId(Long userId) {
-        return postRepository.findByUserId(userId);
-    }
-
     public Post createPost(Post post) {
+
         return postRepository.save(post);
     }
 
     public Post updatePost(Post post) {
+
         return postRepository.save(post);
     }
 
@@ -42,6 +40,7 @@ public class PostService {
     }
 
     public List<Post> getPostsByUserId(Long userId) {
+
         return postRepository.findByUserId(userId);
     }
 }

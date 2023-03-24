@@ -47,4 +47,7 @@ public class UserService {
         return user.getPosts();
     }
 
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId).orElse(null);
+    }
 }

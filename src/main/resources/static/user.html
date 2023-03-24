@@ -29,20 +29,6 @@
 <body>
 <h1>User CRUD</h1>
 
-<table>
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Username</th>
-        <th>Password</th>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Actions</th>
-    </tr>
-    </thead>
-    <tbody id="userList"></tbody>
-</table>
-
 <form id="userForm">
     <input type="hidden" id="userId" />
     <div>
@@ -63,6 +49,20 @@
     </div>
     <button type="submit">Submit</button>
 </form>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Username</th>
+        <th>Password</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody id="userList"></tbody>
+</table>
 
 <!--&lt;!&ndash; User creation form &ndash;&gt;-->
 <!--<h2>Create a User</h2>-->
@@ -153,10 +153,13 @@
 
     // Edit a user
     function editUser(id) {
+        console.log("뭐야 왜이뤱!")
         $.ajax({
+            // url: apiUrl + '/' + id,
             url: apiUrl + `/${id}`,
             type: 'GET',
             success: function(user) {
+                console.log(user.id +user.username);
                 userIdInput.value = user.id;
                 usernameInput.value = user.username;
                 passwordInput.value = user.password;
