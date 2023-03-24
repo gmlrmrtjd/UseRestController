@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User List</title>
+    <style>
+        /* Add some basic styling */
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+        }
+        th {
+            background-color: #efefef;
+        }
+    </style>
+</head>
+<body>
+<h1>User CRUD</h1>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Username</th>
+        <th>Password</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody id="userList"></tbody>
+</table>
+
+<form id="userForm">
+    <input type="hidden" id="userId" />
+    <div>
+        <label for="username">Username:</label>
+        <input type="text" id="username" required />
+    </div>
+    <div>
+        <label for="password">Password:</label>
+        <input type="password" id="password" required />
+    </div>
+    <div>
+        <label for="name">Name:</label>
+        <input type="text" id="name" required />
+    </div>
+    <div>
+        <label for="email">Email:</label>
+        <input type="email" id="email" required />
+    </div>
+    <button type="submit">Submit</button>
+</form>
+
+
+<!-- User creation form -->
+<h2>Create a User</h2>
+
+<form id="createUserForm">
+    <div>
+        <label for="createUsername">Username:</label>
+        <input type="text" id="createUsername" required />
+    </div>
+    <div>
+        <label for="createPassword">Password:</label>
+        <input type="password" id="createPassword" required />
+    </div>
+    <div>
+        <label for="createName">Name:</label>
+        <input type="text" id="createName" required />
+    </div>
+    <div>
+        <label for="createEmail">Email:</label>
+        <input type="email" id="createEmail" required />
+    </div>
+    <button type="submit">Create</button>
+</form>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    const apiUrl = '/users';
+    const userForm = document.getElementById('userForm');
+    const userIdInput = document.getElementById('userId');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const nameInput = document.getElementById('name');
+    const emailInput = document.getElementById('email');
+    const userList = document.getElementById('userList');
+    // User creation form inputs
+    const createUsernameInput = document.getElementById('createUsername');
+    const createPasswordInput = document.getElementById('createPassword');
+    const createNameInput = document.getElementById('createName');
+    const createEmailInput = document.getElementById('createEmail');
+    const createUserForm = document.getElementById('createUserForm');
+
+    // Fetch all users
+    function fetchUsers() {
+        $.ajax({
+            url: apiUrl,
+            type: 'GET',
+            success: function(users) {
+                userList.innerHTML = '';
+                users.forEach(user => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${user.id}</td>
+                        <td>${user.username}</td>
+                        <td>${user.password}</td>
+                        <td>${user.name}</td>
+                        <td>${user.email}</td>
+                        <td>
+                            <button onclick="editUser(${user.id})">Edit</button>
+                            <button onclick="deleteUser(${user.id})">Delete</button>
+                        </td>
+                    `;
+                    userList.appendChild(tr);
+                });
+            }
+        });
+    }
+
+    // Add or update a user
+    function saveUser(user) {
+        return $.ajax({
+            url: apiUrl + (user.id ? `/${user.id}` : ''),
+            type: user.id ? 'PUT' : 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(user)
+        });
+    }
+    // Delete a user
+    function deleteUser(id) {
+        $.ajax({
+            url: apiUrl + `/users/${id}`,
+            type: 'DELETE',
+            success: function() {
+                fetchUsers();
+            }
+        });
+    }
+
+    // Edit a user
+    function editUser(id) {
+        $.ajax({
+            url: apiUrl + `/${id}`,
+            type: 'GET',
+            success: function(user) {
+                userIdInput.value = user.id;
+                usernameInput.value = user.username;
+                passwordInput.value = user.password;
+                nameInput.value = user.name;
+                emailInput.value = user.email;
+            }
+        });
+    }
+
+    // Handle form submit
+    $(userForm).on('submit', async function(e) {
+        e.preventDefault();
+
+        const user = {
+            id: userIdInput.value || null,
+            username: usernameInput.value,
+            password: passwordInput.value,
+            name: nameInput.value,
+            email: emailInput.value
+        };
+
+        await saveUser(user);
+
+        // Reset form
+        userForm.reset();
+        userIdInput.value = '';
+
+        // Refresh the user list
+        fetchUsers();
+    });
+
+    // Initial fetch
+    fetchUsers();
+
+    // Add a new user
+    function addUser(user) {
+        return $.ajax({
+            url: apiUrl,
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(user)
+        });
+    }
+
+    // Handle form submit
+    $(userForm).on('submit', async function(e) {
+        e.preventDefault();
+
+        const user = {
+            id: userIdInput.value || null,
+            username: usernameInput.value,
+            password: passwordInput.value,
+            name: nameInput.value,
+            email: emailInput.value
+        };
+
+        // If the user has an id, update the existing user
+        // Otherwise, create a new user
+        if (user.id) {
+            await saveUser(user);
+        } else {
+            await addUser(user);
+        }
+
+        // Reset form
+        userForm.reset();
+        userIdInput.value = '';
+
+        // Refresh the user list
+        fetchUsers();
+    });
+</script>
+</body>
+</html>

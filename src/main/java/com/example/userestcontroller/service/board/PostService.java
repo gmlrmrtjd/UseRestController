@@ -15,11 +15,17 @@ public class PostService {
     private PostRepository postRepository;
 
     public List<Post> getAllPosts() {
+
         return postRepository.findAll();
     }
 
     public Post getPostById(Long id) {
+
         return postRepository.findById(id).orElse(null);
+    }
+
+    public List<Post> getPostByUserId(Long userId) {
+        return postRepository.findByUserId(userId);
     }
 
     public Post createPost(Post post) {
@@ -31,6 +37,11 @@ public class PostService {
     }
 
     public void deletePost(Long id) {
+
         postRepository.deleteById(id);
+    }
+
+    public List<Post> getPostsByUserId(Long userId) {
+        return postRepository.findByUserId(userId);
     }
 }
